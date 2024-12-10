@@ -50,3 +50,22 @@ ggplot(gsea, aes(x = Celltype, y = description)) +
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(size = 14, face = "bold", hjust = 0.8))
+
+ggplot(gsea, aes(x = Celltype, y = reorder(description, FDR))) +  # Reorder y-axis by FDR
+  geom_point(aes(size = FDR, color = pValue)) +
+  scale_color_gradient(low = "red", high = "blue", name = "pValue") +
+  scale_size_continuous(range = c(0.2, 10)) +  # Adjust point size range
+  theme_minimal() +
+  labs(
+    title = "Gene Set Enrichment Analysis (GSEA) for Secretory epithelial cells and STIC lesions",
+    x = "Cell Types",
+    y = "Pathway Description"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis text
+    axis.text.y = element_text(size = 8),               # Decrease y-axis text size
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.8),
+    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)  # Increase plot margins
+  )
+  ggsave("plots/analysis/gsea_plot.png", width = 10, height = 8, dpi = 300)  # Save with increased dimensions
+

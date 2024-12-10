@@ -1,20 +1,32 @@
-Download the data required for the course here: 
+# Single Cell RNA Sequencing Analysis of Benign and Malignant Fallopian Tube Cells
+
+## Installation
+### Prerequisites
+1. Anaconda
+2. R
+
+### Downlaod and Install Environments
+To recreate the analysis, first set up the Anaconda environment:
+```
+git clone --branch 'main' "https://github.com/NGallop/scRNAseqtutorial.git"
+cd scRNAseqtutorial
+mkdir envs/
+mkdir data/
+conda env create -f environment.yml -p envs/scanpy/
+conda activate envs/scanpy
+pip install 'scanpy[leiden]'
+```
+
+### Download Data
+Data available upon request or download the data here: 
 https://drive.google.com/drive/folders/1-1-WJ0_o0QI4xrBS8hpqqsS8Obo2iEgx?usp=drive_link
 
+Save to the ```data/``` directory in the analysis workspace.
 
-We will use Python in google co-lab for the first day
-- Create a google ID first if you don't have one
-- Co-lab will also run better if you use google chrome as your browser
-- Open the Day_1.ipynb and click the launch in google colab button on the top left corner
-- Solutions will be made available at the end of the day. 
+## Data
 
-We will use the data file 'Hufallopiantube.h5ad'
-- Download this to your computer and place it in your google drive
 
-The second, third, and fourth day we will use R  in google co-lab
-We will need 'X.csv', 'vars.csv' and 'obs.csv' - These contain the gene expression matrix, the gene names, and the observations/metadata
-- Download these to your computer, and upload them to the Runtime session storage, the X.csv will take a while to upload
-- Do remember to change Runtime type to R
+## Analysis
 
 
 
