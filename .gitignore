@@ -2,3 +2,4 @@ data
 .Rproj.user
 Project_*
 envs
+__pycache__
