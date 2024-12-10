@@ -1,6 +1,7 @@
 import scanpy as sc
 import numpy as np
 import pandas as pd
+import requests
 import matplotlib.pyplot as plt
 
 sc.settings.figdir = "plots/data_investigation/"
@@ -14,12 +15,13 @@ raw_data.layers["counts"] = raw_data.X.copy()
 
 print("Plot display suppressed; plots saved directly to file.")
 print("\n\n")
+
 # visualise the data in the terminal
 print("Visualising the Observations in the AnnData object:")
 print(raw_data.obs)
 print("\n\n")
 print("Highest Expressed Genes plot available.")
-sc.pl.highest_expr_genes(raw_data, n_top=5, save='_highest_exp_genes.png', show=False)
+sc.pl.highest_expr_genes(raw_data, n_top=10, save='_highest_exp_genes.png', show=False)
 print("\n\n")
 
 ####### Clean Data #######
@@ -162,3 +164,37 @@ data.obs['Celltype'] = data.obs['leiden'].map(celltypedict)
 # 7. Plot a UMPA coloured by leiden cell type clusters
 sc.tl.umap(data)
 sc.pl.umap(data, color=["Celltype"], save="_cell_type_umap.png", show=False)
+
+###### GWAS associations ######
+
+print("\n\n")
+print("Requesting JSON from GWAS...")
+response=requests.get("https://www.ebi.ac.uk/gwas/rest/api/studies/GCST003588/associations")
+
+associations_data = response.json()['_embedded']['associations']
+gwas = pd.json_normalize(associations_data, 'loci')
+risk_alleles = gwas.explode('strongestRiskAlleles').explode('authorReportedGenes').reset_index(drop=True)
+
+risk_alleles_df = pd.json_normalize(risk_alleles['strongestRiskAlleles'])
+reportedgenes_df = pd.json_normalize(risk_alleles['authorReportedGenes'])
+
+gwasgenes=pd.concat([risk_alleles_df, reportedgenes_df], axis=1)
+gwasgenes = gwasgenes[['riskAlleleName', 'geneName']]
+
+genes=[gene for gene in gwasgenes['geneName'].tolist() if gene !='Intergenic']
+
+print("\n\n")
+print("Dot plot of gene expression of carcinoma GWAS genes per leiden cluster")
+
+missing_genes = [gene for gene in genes if gene not in data.raw.var_names]
+valid_genes = [gene for gene in genes if gene in data.raw.var_names]
+
+if missing_genes:
+    print(f"WARNING: Missing genes: {missing_genes}. Removing form workflow.")  # Debug: list of genes not found
+    sc.pl.dotplot(data, valid_genes, groupby='leiden', swap_axes=True, dendrogram=True, use_raw=True, save="_gwas.png", show=False)
+else:
+    sc.pl.dotplot(data, genes, groupby='leiden', swap_axes=True, dendrogram=True, use_raw=True, save="_gwas.png", show=False)
+
+print("\n\n")
+print("UMAP gene expression of the highly expressed carcinoa GWAS genes compared to the disease stage umap")
+sc.pl.umap(data, color=['leiden','Disease_stage','TUBA1C','KRT8','HLA-C'], save="_gwas.png", show=False)
