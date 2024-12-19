@@ -256,8 +256,8 @@ for gene_list in gene_lists:
 
 # 6. Create a dictionary defining leiden clusters and their respective cell types
 celltypedict = {
-        '0' : 'Secretory Epithelial-1',
-        '1' : 'Secretory Epithelial-2',
+        '0' : 'Secretory Epithelial-2',
+        '1' : 'Secretory Epithelial-1',
         '2' : 'Ciliated Epithelial',
         '3' : 'STIC lesion',
         '4' : 'Immune',
