@@ -5,3 +5,5 @@ envs
 __pycache__
 .DS_Store
 Safe
+.RData
+.Rhistory

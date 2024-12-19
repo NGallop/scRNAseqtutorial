@@ -21,16 +21,120 @@ print("Visualising the Observations in the AnnData object:")
 print(raw_data.obs)
 print("\n\n")
 print("Highest Expressed Genes plot available.")
-sc.pl.highest_expr_genes(raw_data, n_top=10, save='_highest_exp_genes.png', show=False)
+sc.pl.highest_expr_genes(raw_data, n_top=50, save='_highest_exp_genes.png', show=False)
 print("\n\n")
 
+
 ####### Clean Data #######
+# Calculate the number of genes expressed per cell (n_genes_by_counts)
+num_genes_per_cell = (raw_data.X > 0).sum(axis=1)  # Count non-zero entries per cell
+
+# Calculate the number of genes expressed per cell
+num_genes_per_cell = (raw_data.X > 0).sum(axis=1)
+
+# Convert to a dense array
+num_genes_per_cell = np.array(num_genes_per_cell).flatten()
+
+# Display key statistics
+print("\n\n")
+print("Number of Genes expressed per cell summary stats:")
+print(f"Min: {num_genes_per_cell.min()}")
+print(f"Max: {num_genes_per_cell.max()}")
+print(f"Mean: {num_genes_per_cell.mean():.2f}")
+print(f"Median: {np.median(num_genes_per_cell):.2f}")
+print(f"1st Percentile: {np.percentile(num_genes_per_cell, 1):.2f}")
+print(f"99th Percentile: {np.percentile(num_genes_per_cell, 99):.2f}")
+
+# Plot a histogram
+plt.figure(figsize=(8, 5))
+plt.hist(num_genes_per_cell, bins=50, color='skyblue', edgecolor='k')
+plt.xlabel('Number of genes expressed per cell')
+plt.ylabel('Number of cells')
+plt.title('Distribution of genes expressed per cell')
+plt.show()
+plt.close()
+
+
+# Calculate the number of cells in which each gene is expressed
+num_cells_per_gene = (raw_data.X > 0).sum(axis=0)
+
+# Flatten the sparse matrix to a 1D numpy array if it is not already dense
+num_cells_per_gene = np.asarray(num_cells_per_gene).flatten()
+
+# Now calculate the median and other statistics
+print("\n\n")
+print("\n\n")
+print("Raw Summary stats of numer of cells per gene")
+print(f"Min: {num_cells_per_gene.min()}")
+print(f"Max: {num_cells_per_gene.max()}")
+print(f"Mean: {num_cells_per_gene.mean():.2f}")
+print(f"Median: {np.median(num_cells_per_gene):.2f}")
+print(f"1st Percentile: {np.percentile(num_cells_per_gene, 1):.2f}")
+print(f"5th Percentile: {np.percentile(num_cells_per_gene, 5):.2f}")
+print(f"7.5th Percentile: {np.percentile(num_cells_per_gene, 7.5):.2f}")
+print(f"10th Percentile: {np.percentile(num_cells_per_gene, 10):.2f}")
+print(f"99th Percentile: {np.percentile(num_cells_per_gene, 99):.2f}")
+
+### FILTER ###
 
 # Filter out cells which have less than 100 genes expressed.
 sc.pp.filter_cells(raw_data, min_genes= 100)
 
 # Filter out genes which are expressed in less than 3 cells.
 sc.pp.filter_genes(raw_data, min_cells= 3)
+
+### POST FILTER ###
+# Calculate the number of genes expressed per cell (n_genes_by_counts)
+num_genes_per_cell = (raw_data.X > 0).sum(axis=1)  # Count non-zero entries per cell
+
+# Calculate the number of genes expressed per cell
+num_genes_per_cell = (raw_data.X > 0).sum(axis=1)
+
+# Convert to a dense array
+num_genes_per_cell = np.array(num_genes_per_cell).flatten()
+
+# Display key statistics
+print("\n\n")
+print("Number of Genes expressed per cell summary stats:")
+print(f"Min: {num_genes_per_cell.min()}")
+print(f"Max: {num_genes_per_cell.max()}")
+print(f"Mean: {num_genes_per_cell.mean():.2f}")
+print(f"Median: {np.median(num_genes_per_cell):.2f}")
+print(f"1st Percentile: {np.percentile(num_genes_per_cell, 1):.2f}")
+print(f"99th Percentile: {np.percentile(num_genes_per_cell, 99):.2f}")
+
+# Plot a histogram
+#plt.figure(figsize=(8, 5))
+#plt.hist(num_genes_per_cell, bins=50, color='skyblue', edgecolor='k')
+#plt.xlabel('Number of genes expressed per cell')
+#plt.ylabel('Number of cells')
+#plt.title('Distribution of genes expressed per cell')  
+#plt.show()
+#plt.close()
+
+
+# Calculate the number of cells in which each gene is expressed
+num_cells_per_gene = (raw_data.X > 0).sum(axis=0)
+
+# Flatten the sparse matrix to a 1D numpy array if it is not already dense
+num_cells_per_gene = np.asarray(num_cells_per_gene).flatten()
+
+# Now calculate the median and other statistics
+print("\n\n")
+print("\n\n")
+print("Filtered Cells per Gene:")
+print(f"Min: {num_cells_per_gene.min()}")
+print(f"Max: {num_cells_per_gene.max()}")
+print(f"Mean: {num_cells_per_gene.mean():.2f}")
+print(f"Median: {np.median(num_cells_per_gene):.2f}")
+print(f"1st Percentile: {np.percentile(num_cells_per_gene, 1):.2f}")
+print(f"5th Percentile: {np.percentile(num_cells_per_gene, 5):.2f}")
+print(f"7.5th Percentile: {np.percentile(num_cells_per_gene, 7.5):.2f}")
+print(f"10th Percentile: {np.percentile(num_cells_per_gene, 10):.2f}")
+print(f"99th Percentile: {np.percentile(num_cells_per_gene, 99):.2f}")
+
+
+###### Quality Assurance Filters ######
 
 # Calculate quality control metrics. These are added to column of adata.obs or in adata.var_names.
 sc.pp.calculate_qc_metrics(raw_data, percent_top=[50/100/200/500], inplace=True, log1p=False, )
@@ -41,13 +145,12 @@ sc.pl.violin(raw_data, ['n_genes_by_counts','total_counts'], jitter=0.4, multi_p
 print("\n\n")
 
 # Filter again based on this to remove n_gene_by_counts of <6000 and 'total_counts' <1500000
-raw_data = raw_data[raw_data.obs.n_genes_by_counts <6000,:]
-data = raw_data[raw_data.obs.total_counts <1500000,:]
+data = raw_data[raw_data.obs.n_genes_by_counts <6000,:]
+data = data[data.obs.total_counts <1500000,:]
 # Visualise again
 print("Filtered Quality Control Metrics available.")
 sc.pl.violin(data, ['n_genes_by_counts','total_counts'], jitter=0.4, multi_panel=True, save='_sliced_qc.png', show=False)
 print("\n\n")
-
 
 ###### Dimensionality Reduction and Visualisation ######
 
@@ -121,19 +224,20 @@ if Export_csv:
 sc.pl.rank_genes_groups_heatmap(data, n_genes=20, swap_axes=True, show_gene_labels=False, vmin=-3, vmax=3, save="_ranked_genes_groups.png", show=False)
 
 # 5. Visualise marker genes to determine the cell types present in each cluster
-sec_epi_list = ["PAX8", "SOX17", "OVGP1", "MUC16"]
+sec_epi_list = ["CLDN4", "OVGP1", "PAX8"]
 cil_epi_list = ["FOXJ1", "CCDC78", "PIFO"]
 immune_list = ["PTPRC", "CD3D", "CD14"]
 fibroblast_list = ["COL1A1", "COL3A1", "DCN"]
-stic_list = ["KRT17", "WFDC2"]
+stic_list = ["KRT17", "KRT7", "ANXA2"]
+cancer_list = ["WFDC2", "PAEP", "SLPI"]
 
-gene_lists = [sec_epi_list, cil_epi_list, immune_list, fibroblast_list, stic_list]
+gene_lists = [sec_epi_list, cil_epi_list, immune_list, fibroblast_list, stic_list, cancer_list]
 
 print("Final violin plot to decide dictionary. Close to close program...")
 iteration = 0
 for gene_list in gene_lists:
     iteration += 1
-    if gene_list[0] == "PAX8":
+    if gene_list[0] == "CLDN4":
         file_namer = "secretory_epithelial"
     elif gene_list[0] == "FOXJ1":
         file_namer = "ciliated_epithelial"
@@ -143,6 +247,8 @@ for gene_list in gene_lists:
         file_namer = "fibroblast"
     elif gene_list[0] == "KRT17":
         file_namer = "STIC"
+    elif gene_list[0] == "WFDC2":
+        file_namer = "HGSOC"
     else:
         file_namer = f"unknown{iteration}"
     sc.pl.violin(data, gene_list, groupby = 'leiden', save=f'_gene_exp_{file_namer}.png', show=False)
@@ -153,9 +259,9 @@ celltypedict = {
         '0' : 'Secretory Epithelial-1',
         '1' : 'Secretory Epithelial-2',
         '2' : 'Ciliated Epithelial',
-        '3' : 'STIC-1',
+        '3' : 'STIC lesion',
         '4' : 'Immune',
-        '5' : 'STIC-2',
+        '5' : 'High Grade Carcinoma',
         '6' : 'Fibroblast'
         }
 
@@ -197,4 +303,5 @@ else:
 
 print("\n\n")
 print("UMAP gene expression of the highly expressed carcinoa GWAS genes compared to the disease stage umap")
-sc.pl.umap(data, color=['leiden','Disease_stage','TUBA1C','KRT8','HLA-C'], save="_gwas.png", show=False)
+sc.pl.umap(data, color=['Disease_stage', 'Celltype'], save="_gwas_clusters.png", show=False)
+sc.pl.umap(data, color=['TUBA1C','KRT8','HLA-C'], save="_gwas_genes.png", show=False)
