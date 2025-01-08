@@ -163,38 +163,62 @@ posterior_distribution_plot
 
 
 # rerun, different choices
-bayes_Choice1 <-  ttestBF(x= compilation_SE1$Entropy, posterior = TRUE ,iterations = 1000)
-plot(bayes_Choice1[,"mu"])
+bayes_SE1 <-  ttestBF(x= compilation_SE1$Entropy, posterior = TRUE ,iterations = 1000)
 
-bayes_Choice2 <-  ttestBF(x= compilation_STIC$Entropy, posterior = TRUE ,iterations = 1000)
-plot(bayes_Choice2[,"mu"])
+bayes_SE2 <-  ttestBF(x= compilation_SE2$Entropy, posterior = TRUE ,iterations = 1000)
 
-bayes_Choice1_Choice2 <-  ttestBF(x= compilation_SE1$Entropy, y=compilation_STIC$Entropy,
-                                  posterior = TRUE ,iterations = 1000, paired = TRUE)
+bayes_SE1_SE2 <-  ttestBF(x= compilation_SE2$Entropy, y=compilation_SE1$Entropy,
+                           posterior = TRUE ,iterations = 1000, paired = TRUE)
 
-post_Choice1<- data.frame(mu = as.numeric(bayes_Choice1[,"mu"]), Posterior = 'Choice 1')
-post_Choice2<- data.frame(mu = as.numeric(bayes_Choice2[,"mu"]), Posterior = 'Choice 2')
-post_Choice1_Choice2<- data.frame(mu = as.numeric(bayes_Choice1_Choice2[,"mu"]), Posterior = 'Choice 1 & Choice 2')
+post_SE1<- data.frame(mu = as.numeric(bayes_SE1[,"mu"]), Posterior = 'Secretory Epithelial-1')
+post_SE2<- data.frame(mu = as.numeric(bayes_SE2[,"mu"]), Posterior = 'Secretory Epithelial-2')
+post_SE1_SE2<- data.frame(mu = as.numeric(bayes_SE1_SE2[,"mu"]),
+                           Posterior = 'Secretory Epithelial-1 & Secretory Epithalial-2')
 
-ci95<-hdi(post_Choice1_Choice2)
 
-plot_post_Choice1 <- ggplot(post_Choice1, aes(x=mu))+
-  geom_histogram(color="darkblue", fill="lightblue")+
-  ggtitle("Choice1")
+ci95<-hdi(post_SE1_SE2)
 
-plot_post_Choice2 <- ggplot(post_Choice2, aes(x=mu))+
-  geom_histogram(color="red", fill="pink")+
-  ggtitle("Choice2")
 
-plot_post_Choice1_Choice2 <- ggplot(post_Choice1_Choice2, aes(x=mu))+
+plot_post_SE1 <- ggplot(post_SE1, aes(x=mu))+
+  geom_histogram(color="darkblue", fill="lightblue") +
+  ggtitle("Secretory Epithelial-1")
+
+plot_post_SE2 <- ggplot(post_SE2, aes(x=mu))+
+  geom_histogram(color="red", fill="pink") +
+  ggtitle("Secretory Epithelial-2")
+
+plot_post_SE1_SE2 <- ggplot(post_SE1_SE2, aes(x=mu))+
   geom_histogram(color="darkgreen", fill="green") +
   geom_vline(xintercept = as.numeric(ci95[1:2]), linetype="dashed",
-             color = "black", size=1, )+
-  ggtitle("Choice1 & Choice2")
+             color = "black", size=1, ) +
+  ggtitle("Secretory Epithelial-1 & Secretory Epithelial-2")
 
-plot_post_Choice1
-plot_post_Choice2
-plot_post_Choice1_Choice2
+plot_post_SE1
+plot_post_SE2
+plot_post_SE1_SE2
+
+
+bayes_plot <- plot_grid(
+  plot_post_SE1, plot_post_SE2, plot_post_SE1_SE2,
+  ncol = 1,
+  labels = 
+)
+
+
+posterior_distribution_plot <- ggdraw() +
+  draw_label("Posterior Distributions of Entropy",
+             fontface = 'bold', size = 16, x = 0.5, y = 0.95, hjust = 0.5) +
+  draw_plot(bayes_plot, x=0, y=0, width=1, height=1)
+
+posterior_distribution_plot <- plot_grid(
+  ggdraw() + draw_label("Posterior Distributions of Entropy: SE-1, SE-2",
+                        fontface = 'bold', size = 16, x = 0.5, y = 0.6, hjust = 0.5),
+  bayes_plot,
+  ncol=1,
+  rel_heights = c(2,15)
+)
+
+posterior_distribution_plot
 
 
 

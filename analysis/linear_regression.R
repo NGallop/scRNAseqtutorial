@@ -12,7 +12,7 @@ summary(model)
 
 geneexpression <- ggplot(filtered_meta, aes(x = JUNB, y = IER2)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  geom_smooth(method = "lm", se = TRUE, aes(group = Disease_stage, color = Disease_stage)) +
   theme_minimal() +
   labs(title = "JUNB Expression vs.IER2 Expression",
        x = "JUNB Expression",
